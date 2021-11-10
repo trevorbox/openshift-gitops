@@ -1,0 +1,24 @@
+apiVersion: redhatcop.redhat.io/v1alpha1
+kind: NamespaceConfig
+metadata:
+  name: argocd-application-controller
+spec:
+  annotationSelector:
+    matchExpressions:
+      - {key: argocdserviceaccountname, operator: Exists}
+      - {key: argocdnamespace, operator: Exists}
+  templates:
+    - objectTemplate: |
+        kind: RoleBinding
+        apiVersion: rbac.authorization.k8s.io/v1
+        metadata:
+          name: argocd-application-controller
+          namespace: {{ printf "{{ .Name }}" }}
+        subjects:
+          - kind: ServiceAccount
+            name: {{ printf "{{ (lookup \"v1\" \"Namespace\" \"\" .Name).metadata.annotations.argocdserviceaccountname }}" }}
+            namespace: {{ printf "{{ (lookup \"v1\" \"Namespace\" \"\" .Name).metadata.annotations.argocdnamespace }}" }}
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: ClusterRole
+          name: argocd-workaround993-role

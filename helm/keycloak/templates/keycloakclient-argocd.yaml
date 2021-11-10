@@ -1,0 +1,42 @@
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: argocd
+  labels:
+    app: keycloak
+spec:
+  realmSelector:
+    matchLabels:
+      app: keycloak
+  client:    
+    id: argocd
+    clientId: argocd
+    name: argocd
+    enabled: true
+    clientAuthenticatorType: client-secret
+    redirectUris:  
+      - https://{{ .Values.argocd.name }}-server-{{ .Values.argocd.namespace }}.{{ .Values.subdomain }}/auth/callback
+    rootUrl: https://{{ .Values.argocd.name }}-server-{{ .Values.argocd.namespace }}.{{ .Values.subdomain }}
+    adminUrl: https://{{ .Values.argocd.name }}-server-{{ .Values.argocd.namespace }}.{{ .Values.subdomain }}
+    webOrigins:
+      - https://{{ .Values.argocd.name }}-server-{{ .Values.argocd.namespace }}.{{ .Values.subdomain }}
+    notBefore: 0
+    surrogateAuthRequired: false
+    standardFlowEnabled: true
+    implicitFlowEnabled: false
+    directAccessGrantsEnabled: false
+    serviceAccountsEnabled: false
+    publicClient: false
+    frontchannelLogout: false
+    protocol: openid-connect
+    fullScopeAllowed: true
+    nodeReRegistrationTimeout: -1
+    access:
+      view: true
+      configure: true
+      manage: true
+    defaultClientScopes:
+      - groups
+      - email
+    bearerOnly: false

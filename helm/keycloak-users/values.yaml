@@ -1,0 +1,33 @@
+users:
+  - username: user1
+    email: user1@email.com
+    firstName: user1
+    lastName: dev
+    enabled: true
+    openshift:
+      uid: 
+      username: user1
+  - username: user2
+    email: user2@email.com
+    firstName: user2
+    lastName: dev
+    enabled: true
+    openshift:
+      uid: 
+      username: user2
+  - username: user3
+    email: user3@email.com
+    firstName: user3
+    lastName: dev
+    enabled: true
+    openshift:
+      uid: 
+      username: user3
+  - username: user4
+    email: user4@email.com
+    firstName: user4
+    lastName: dev
+    enabled: true
+    openshift:
+      uid: 
+      username: user4

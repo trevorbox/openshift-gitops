@@ -1,0 +1,4 @@
+subdomain: 
+argocd:
+  name: argocd 
+  namespace: example-argocd

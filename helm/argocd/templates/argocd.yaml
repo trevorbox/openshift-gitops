@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ArgoCD
+metadata:
+  name: {{ .Values.argocd.name }}
+spec:
+  server:
+    autoscale:
+      enabled: false
+    grpc:
+      ingress:
+        enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: true
+    service:
+      type: ''
+  grafana:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  prometheus:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  initialSSHKnownHosts: {}
+  # sso:
+  #   provider: keycloak
+  #   verifyTLS: false
+  rbac:
+    defaultPolicy: 'role:'
+    policy: |
+      g, ArgoCDAdmins, role:admin
+    scopes: '[groups]'
+  repo: {}
+  resourceExclusions: |
+    - apiGroups:
+      - tekton.dev
+      clusters:
+      - '*'
+      kinds:
+      - TaskRun
+      - PipelineRun
+  dex: {}
+  ha:
+    enabled: false
+  oidcConfig: | 
+    name: OpenShift Single Sign-On
+    issuer: https://keycloak-{{ .Release.Namespace }}.{{ .Values.subdomain }}/auth/realms/argocd
+    clientID: argocd
+    clientSecret: $oidc.keycloak.clientSecret
+    requestedScopes: ["openid", "email", "groups"]
+  tls:
+    ca: {}
+  redis: {}
+  controller:
+    processors: {}

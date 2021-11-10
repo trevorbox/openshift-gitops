@@ -1,0 +1,26 @@
+{{- range .Values.users }}
+---
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakUser
+metadata:
+  name: {{ .username }}
+spec:
+  realmSelector:
+    matchLabels:
+      app: keycloak
+  user:
+    username: {{ .username }}
+    email: {{ .email }}
+    firstName: {{ .firstName }}
+    lastName: {{ .lastName }}
+    enabled: {{ .enabled }}
+    federatedIdentities:
+      - identityProvider: openshift-v4
+        userName: {{ .openshift.username }}
+        userId: {{ .openshift.uid }}
+    realmRoles:
+      - "default-roles-argocd"
+    groups:
+      - "ArgoCDAdmins"
+...
+{{- end }}
