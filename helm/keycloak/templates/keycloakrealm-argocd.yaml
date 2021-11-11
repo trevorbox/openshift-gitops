@@ -1,4 +1,3 @@
----
 apiVersion: keycloak.org/v1alpha1
 kind: KeycloakRealm
 metadata:
@@ -11,34 +10,34 @@ spec:
     realm: argocd
     enabled: true
     displayName: ArgoCD Realm
-    clientScopes:
-      - name: groups
-        protocol: openid-connect
-        protocolMappers:
-          - name: groups
-            protocol: openid-connect
-            consentRequired: false
-            protocolMapper: oidc-group-membership-mapper
-            config:
-              "full.path": "false"
-              "id.token.claim": "true"
-              "access.token.claim": "true"
-              "userinfo.token.claim": "true"
-              "claim.name": groups            
-      - name: email
-        protocol: openid-connect
-        protocolMappers:
-          - name: email
-            protocol: openid-connect
-            consentRequired: false
-            protocolMapper: oidc-usermodel-property-mapper
-            config:
-              "id.token.claim": "true"
-              "access.token.claim": "true"
-              "userinfo.token.claim": "true"
-              "claim.name": email
-              "jsonType.label": String
-              "user.attribute": email
+    # clientScopes:
+    #   - name: groups
+    #     protocol: openid-connect
+    #     protocolMappers:
+    #       - name: groups
+    #         protocol: openid-connect
+    #         consentRequired: false
+    #         protocolMapper: oidc-group-membership-mapper
+    #         config:
+    #           full.path: "false"
+    #           id.token.claim: "true"
+    #           access.token.claim: "true"
+    #           userinfo.token.claim: "true"
+    #           claim.name: groups            
+    #   - name: email
+    #     protocol: openid-connect
+    #     protocolMappers:
+    #       - name: email
+    #         protocol: openid-connect
+    #         consentRequired: false
+    #         protocolMapper: oidc-usermodel-property-mapper
+    #         config:
+    #           id.token.claim: "true"
+    #           access.token.claim: "true"
+    #           userinfo.token.claim: "true"
+    #           claim.name: email
+    #           jsonType.label: String
+    #           user.attribute: email
     identityProviders:
       - alias: openshift-v4
         providerId: openshift-v4
@@ -55,9 +54,59 @@ spec:
           clientSecret: "admin"
           defaultScope: "user:full"
           useJwksUrl: "true"
-    # scopeMappings:
-    #   - client: argocd
-    #     clientScope: groups
+    # clients:
+    # - id: argocd
+    #   clientId: argocd
+    #   name: argocd
+    #   enabled: true
+    #   clientAuthenticatorType: client-secret
+    #   redirectUris:  
+    #     - https://{{ .Values.argocd.name }}-server-{{ .Values.argocd.namespace }}.{{ .Values.subdomain }}/auth/callback
+    #   rootUrl: https://{{ .Values.argocd.name }}-server-{{ .Values.argocd.namespace }}.{{ .Values.subdomain }}
+    #   adminUrl: https://{{ .Values.argocd.name }}-server-{{ .Values.argocd.namespace }}.{{ .Values.subdomain }}
+    #   webOrigins:
+    #     - https://{{ .Values.argocd.name }}-server-{{ .Values.argocd.namespace }}.{{ .Values.subdomain }}
+    #   notBefore: 0
+    #   surrogateAuthRequired: false
+    #   standardFlowEnabled: true
+    #   implicitFlowEnabled: false
+    #   directAccessGrantsEnabled: false
+    #   serviceAccountsEnabled: false
+    #   publicClient: false
+    #   frontchannelLogout: false
+    #   protocol: openid-connect
+    #   fullScopeAllowed: true
+    #   nodeReRegistrationTimeout: -1
+    #   access:
+    #     view: true
+    #     configure: true
+    #     manage: true
+    #   defaultClientScopes:
+    #     - groups
+    #     - email
+    #   bearerOnly: false
+    #   protocolMappers:
+    #     - name: groups
+    #       protocol: openid-connect
+    #       consentRequired: false
+    #       protocolMapper: oidc-group-membership-mapper
+    #       config:
+    #         full.path: "false"
+    #         id.token.claim: "true"
+    #         access.token.claim: "true"
+    #         userinfo.token.claim: "true"
+    #         claim.name: groups            
+    #     - name: email
+    #       protocol: openid-connect
+    #       consentRequired: false
+    #       protocolMapper: oidc-usermodel-property-mapper
+    #       config:
+    #         id.token.claim: "true"
+    #         access.token.claim: "true"
+    #         userinfo.token.claim: "true"
+    #         claim.name: email
+    #         jsonType.label: String
+    #         user.attribute: email
   instanceSelector:
     matchLabels:
       app: keycloak

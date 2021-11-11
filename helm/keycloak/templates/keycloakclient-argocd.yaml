@@ -1,4 +1,3 @@
----
 apiVersion: keycloak.org/v1alpha1
 kind: KeycloakClient
 metadata:
@@ -40,3 +39,25 @@ spec:
       - groups
       - email
     bearerOnly: false
+    protocolMappers:
+      - name: groups
+        protocol: openid-connect
+        consentRequired: false
+        protocolMapper: oidc-group-membership-mapper
+        config:
+          full.path: "false"
+          id.token.claim: "true"
+          access.token.claim: "true"
+          userinfo.token.claim: "true"
+          claim.name: groups            
+      - name: email
+        protocol: openid-connect
+        consentRequired: false
+        protocolMapper: oidc-usermodel-property-mapper
+        config:
+          id.token.claim: "true"
+          access.token.claim: "true"
+          userinfo.token.claim: "true"
+          claim.name: email
+          jsonType.label: String
+          user.attribute: email

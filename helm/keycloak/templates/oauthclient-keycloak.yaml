@@ -1,4 +1,3 @@
----
 kind: OAuthClient
 apiVersion: oauth.openshift.io/v1
 metadata:
