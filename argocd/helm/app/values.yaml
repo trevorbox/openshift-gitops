@@ -1,2 +1,3 @@
+addFinalizer: true
 source:
   targetRevision: app-of-apps

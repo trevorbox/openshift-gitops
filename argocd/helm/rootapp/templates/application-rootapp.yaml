@@ -2,6 +2,10 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: rootapp
+  {{- if .Values.addFinalizer }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  {{- end }}
 spec:
   destination:
     name: ''
@@ -16,4 +20,6 @@ spec:
         - values-{{ .Values.clusterName }}.yaml 
   project: default
   syncPolicy:
-    automated: {}
+    automated: 
+      prune: true
+      selfHeal: true
