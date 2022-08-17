@@ -4,7 +4,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: nginx-echo-headers-{{ . }}
-  {{- if .Values.addFinalizer }}
+  {{- if $.Values.addFinalizer }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   {{- end }}
