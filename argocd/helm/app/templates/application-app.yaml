@@ -12,7 +12,7 @@ spec:
   source:
     path: deploy/helm/app
     repoURL: 'https://github.com/trevorbox/openshift-gitops.git'
-    targetRevision: {{ .Values.source.targetRevision }}
+    targetRevision: {{ $.Values.source.targetRevision }}
     helm:
       valueFiles:
         - values-{{ . }}.yaml
