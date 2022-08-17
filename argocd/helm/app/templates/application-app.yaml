@@ -1,0 +1,23 @@
+{{- range .Values.namespaces }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-echo-headers
+spec:
+  destination:
+    name: ''
+    namespace: {{ . }}
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: deploy/helm/app
+    repoURL: 'https://github.com/trevorbox/openshift-gitops.git'
+    targetRevision: {{ .Values.source.targetRevision }}
+    helm:
+      valueFiles:
+        - values-{{ . }}.yaml
+  project: default
+  syncPolicy:
+    automated: {}
+...
+{{- end }}
