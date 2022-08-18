@@ -51,5 +51,6 @@ helm upgrade -i rootapp argocd/helm/rootapp/ -n ${argo_namespace} \
 ## cleanup
 
 ```sh
+helm delete rootapp -n ${argo_namespace}
 for i in "${envs[@]}"; do ns=${org}-${context}-${i} && oc delete project ${ns}; done
 ```
