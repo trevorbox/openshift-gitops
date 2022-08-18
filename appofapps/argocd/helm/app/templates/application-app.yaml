@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ $.Values.context }}-{{ .env }}
+  name: {{ $.Values.org }}-{{ $.Values.context }}-{{ .env }}
   {{- if .addFinalizer }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io

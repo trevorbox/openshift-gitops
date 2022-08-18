@@ -31,14 +31,26 @@ for i in "${envs[@]}"; do ns=${org}-${context}-${i} && oc new-project ${ns} && o
 ## deploy
 
 ```sh
+# dev cluster rootapp
 helm upgrade -i rootapp argocd/helm/rootapp/ -n ${argo_namespace} \
   --set org=${org} \
   --set context=${context} \
   -f argocd/helm/rootapp/values-cluster-dev.yaml
+# stage cluster rootapp
+helm upgrade -i rootapp argocd/helm/rootapp/ -n ${argo_namespace} \
+  --set org=${org} \
+  --set context=${context} \
+  -f argocd/helm/rootapp/values-cluster-stage.yaml
+# prod cluster rootapp
+helm upgrade -i rootapp argocd/helm/rootapp/ -n ${argo_namespace} \
+  --set org=${org} \
+  --set context=${context} \
+  -f argocd/helm/rootapp/values-cluster-prod.yaml
 ```
 
 ## cleanup
 
 ```sh
+helm delete rootapp -n ${argo_namespace}
 for i in "${envs[@]}"; do ns=${org}-${context}-${i} && oc delete project ${ns}; done
 ```

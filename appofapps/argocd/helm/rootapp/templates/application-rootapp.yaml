@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .Values.context }}-rootapp-{{ .Values.clusterName }}
+  name: {{ $.Values.org }}-{{ .Values.context }}-rootapp-{{ .Values.clusterName }}
   {{- if .Values.addFinalizer }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
