@@ -5,5 +5,5 @@ context: nginx-echo-headers
 addFinalizer: true
 source:
   targetRevision: main
-  path: appofapps/deploy/helm/app
+  path: appofapps/argocd/helm/app
   repoURL: 'https://github.com/trevorbox/openshift-gitops.git'
