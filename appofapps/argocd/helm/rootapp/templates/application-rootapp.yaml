@@ -12,12 +12,15 @@ spec:
     namespace: {{ .Release.Namespace }}
     server: 'https://kubernetes.default.svc'
   source:
-    path: argocd/helm/app
-    repoURL: 'https://github.com/trevorbox/openshift-gitops.git'
-    targetRevision: {{ .Values.source.targetRevision }}
+    path: {{ .Values.source.path | quote }}
+    repoURL: {{ .Values.source.repoURL | quote }}
+    targetRevision: {{ .Values.source.targetRevision | quote }}
     helm: 
       valueFiles:
-        - values-{{ .Values.clusterName }}.yaml 
+        - values-{{ .Values.clusterName }}.yaml
+      parameters:
+        org: {{ .Values.org }}
+        context: {{.Values.context }}
   project: default
   syncPolicy:
     automated: 

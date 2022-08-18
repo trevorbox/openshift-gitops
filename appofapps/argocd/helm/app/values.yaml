@@ -6,6 +6,6 @@ context: nginx-echo-headers
 # default values if unset for each environment
 defaults:
   source:
-    path: deploy/helm/app
+    path: appofapps/deploy/helm/app
     repoURL: 'https://github.com/trevorbox/openshift-gitops.git'
-    targetRevision: app-of-apps
+    targetRevision: main

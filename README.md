@@ -8,6 +8,8 @@ We also create a tenant namespace for the team-managed openshift-gitops (argocd)
 
 See <https://docs.openshift.com/container-platform/4.7/cicd/gitops/configuring-sso-for-argo-cd-on-openshift.html>
 
+> Note: for the app of apps pattern see the [appofapps](./appofapps/README.md) README.
+
 ## Setup
 
 ```sh
