@@ -19,8 +19,10 @@ spec:
       valueFiles:
         - values-{{ .Values.clusterName }}.yaml
       parameters:
-        org: {{ .Values.org }}
-        context: {{.Values.context }}
+        - name: org
+          value: {{ .Values.org }}
+        - name: context
+          value: {{.Values.context }}
   project: default
   syncPolicy:
     automated: 
