@@ -1,0 +1,11 @@
+# Namespace naming convetion <org>-<context>-<env>
+# Every cluster values-<cluster>.yaml file has unique <env> entries listed
+org: myorg
+context: nginx-echo-headers
+
+# default values if unset for each environment
+defaults:
+  source:
+    path: appofapps/deploy/helm/app
+    repoURL: 'https://github.com/trevorbox/openshift-gitops.git'
+    targetRevision: main

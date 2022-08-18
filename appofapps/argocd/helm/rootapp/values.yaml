@@ -1,0 +1,9 @@
+# Namespace naming convetion <org>-<context>-<env>
+org: myorg
+context: nginx-echo-headers
+
+addFinalizer: true
+source:
+  targetRevision: main
+  path: appofapps/deploy/helm/app
+  repoURL: 'https://github.com/trevorbox/openshift-gitops.git'
