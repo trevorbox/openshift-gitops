@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: rootapp
+  name: {{ .Values.context }}-rootapp
   {{- if .Values.addFinalizer }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -9,7 +9,7 @@ metadata:
 spec:
   destination:
     name: ''
-    namespace: cicd
+    namespace: {{ .Release.Namespace }}
     server: 'https://kubernetes.default.svc'
   source:
     path: argocd/helm/app

@@ -1,3 +1,6 @@
+# Namespace naming convetion <org>-<context>-<env>
+context: nginx-echo-headers
+
 addFinalizer: true
 source:
   targetRevision: app-of-apps
