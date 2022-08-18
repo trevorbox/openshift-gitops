@@ -1,0 +1,3 @@
+annotations:
+  sidecar.istio.io/inject: "true"
+  valuesFileName: values-qa.yaml
