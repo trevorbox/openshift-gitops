@@ -54,3 +54,14 @@ helm upgrade -i rootapp argocd/helm/rootapp/ -n ${argo_namespace} \
 helm delete rootapp -n ${argo_namespace}
 for i in "${envs[@]}"; do ns=${org}-${context}-${i} && oc delete project ${ns}; done
 ```
+
+## build pipeline
+
+```sh
+export build_namespace=${org}-${context}-build
+```
+
+```sh
+helm upgrade -i go-build-and-deploy pipelines/helm/build -n ${build_namespace} --set-file quay.dockerconfigjson=trevorbox-deployer-auth.json
+oc apply -f pipelines/pipelinerun/pipelinerun-build-deploy-go.yaml -n ${build_namespace}
+```

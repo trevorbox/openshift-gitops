@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: build-deploy-go
+spec:
+  pipelineRef:
+    name: build-and-deploy
+  serviceAccountName: skopeo
+  params:
+  - name: deployment-name
+    value: go
+  - name: git-url
+    value: https://github.com/trevorbox/s2i.git
+  - name: git-revision
+    value: master
+  - name: IMAGE
+    value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
+  - name: CONTEXT
+    value: go
+  - name: srcImageURL
+    value: docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
+  - name: destImageURL
+    value: docker://quay.io/trevorbox/pipeline-test-go
+  workspaces:
+  - name: shared-workspace
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 500Mi
