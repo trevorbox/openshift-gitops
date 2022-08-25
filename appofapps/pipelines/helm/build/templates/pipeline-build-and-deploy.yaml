@@ -16,18 +16,22 @@ spec:
     type: string
     description: revision to be used from repo of the code for deployment
     default: master
+  - name: RELEASE
+    type: string
+    description: release semver - MAJOR.MINOR.PATCH
+    default: "0.1.0"
   - name: IMAGE
     type: string
     description: image to be build from the code
   - name: CONTEXT
     type: string
     description: path to the source code
-  - name: srcImageURL
-    type: string
-    description: the image to copy
-  - name: destImageURL
-    type: string
-    description: the destination for the image   
+  # - name: srcImageURL
+  #   type: string
+  #   description: the image to copy
+  # - name: destImageURL
+  #   type: string
+  #   description: the destination for the image   
   tasks:
   - name: fetch-repository
     taskRef:
@@ -45,31 +49,47 @@ spec:
       value: "true"
     - name: revision
       value: $(params.git-revision)
+  - name: next-prerelease-semver
+    taskRef:
+      name: next-prerelease-semver
+    params:
+    - name: repository
+      value: $(params.IMAGE)
+    - name: release
+      value: $(params.RELEASE)
+    runAfter:
+    - fetch-repository
   - name: build-image
     taskRef:
       name: buildah
       kind: ClusterTask
     params:
     - name: IMAGE
-      value: $(params.IMAGE)
+      value: "$(params.IMAGE):v$(tasks.next-prerelease-semver.results.next-prerelease-semver)"
     - name: CONTEXT
       value: $(params.CONTEXT)
     - name: TLSVERIFY
       value: "false"
+    - name: BUILD_EXTRA_ARGS
+      value: |
+        --build-arg git_origin_url=$(params.git-url) 
+        --build-arg git_revision=$(tasks.fetch-repository.results.commit)
+        --build-arg base_image_name=$(tasks.next-prerelease-semver.results.base-image-name)
+        --build-arg base_image_digest=$(tasks.next-prerelease-semver.results.base-image-digest)
     workspaces:
     - name: source
       workspace: shared-workspace
     runAfter:
-    - fetch-repository
+    - next-prerelease-semver
   - name: push-image
     taskRef:
       name: skopeo-copy
       kind: ClusterTask
     params:
     - name: srcImageURL
-      value: $(params.srcImageURL)
+      value: "docker://$(params.IMAGE):v$(tasks.next-prerelease-semver.results.next-prerelease-semver)"
     - name: destImageURL
-      value: $(params.destImageURL)
+      value: "docker://$(params.IMAGE):latest"
     - name: srcTLSverify
       value: "false"
     - name: destTLSverify

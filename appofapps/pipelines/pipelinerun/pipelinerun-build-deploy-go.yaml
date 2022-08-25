@@ -12,15 +12,18 @@ spec:
   - name: git-url
     value: https://github.com/trevorbox/s2i.git
   - name: git-revision
-    value: master
+    value: release/0.1.0
+  - name: RELEASE
+    value: "0.1.0"
   - name: IMAGE
-    value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
+    # value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
+    value: quay.io/trevorbox/pipeline-test-go
   - name: CONTEXT
     value: go
-  - name: srcImageURL
-    value: docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
-  - name: destImageURL
-    value: docker://quay.io/trevorbox/pipeline-test-go
+  # - name: srcImageURL
+  #   value: docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
+  # - name: destImageURL
+  #   value: docker://quay.io/trevorbox/pipeline-test-go
   workspaces:
   - name: shared-workspace
     volumeClaimTemplate:

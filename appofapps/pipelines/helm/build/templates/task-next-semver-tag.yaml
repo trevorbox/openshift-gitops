@@ -1,0 +1,38 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: next-prerelease-semver
+spec:
+  params:
+    - name: repository
+      description: The image repository
+      type: string
+    - name: release
+      description: The MAJOR.MINOR.PATCH \"semver\" release version used to calculate the next prerelease version from remote tags in the repository
+      type: string
+    - name: base-image
+      type: string
+      description: The image repository of the base image
+      default: registry.access.redhat.com/ubi8/ubi-micro:latest
+    # - name: authfile
+    #   description: The image repository
+    #   type: string
+  results:
+    - name: next-prerelease-semver
+      description: The next semver prerelease tag
+    - name: base-image-name
+      description: The name of the base image
+    - name: base-image-digest
+      description: The digest of the base image
+  steps:
+    - name: next-prerelease-semver
+      image: quay.io/trevorbox/next-prerelease-semver:latest
+      script: |
+        #!/usr/bin/env bash
+        set -xe
+        NEXT_TAG=$(/opt/app-root/next-prerelease-semver --repository=$(inputs.params.repository) --release=$(inputs.params.release)) 
+        echo -n ${NEXT_TAG} > $(results.next-prerelease-semver.path)
+        # BASE_IMAGE_NAME=$(skopeo inspect --format "\{\{ .Name \}\}" docker://$(inputs.params.base-image))
+        # echo -n ${BASE_IMAGE_NAME} > $(results.base-image-name.path)
+        # BASE_IMAGE_DIGEST="$(skopeo inspect --format \"{{ .Digest }}\" docker://$(inputs.params.base-image))"
+        # echo -n ${BASE_IMAGE_DIGEST} > $(results.base-image-digest.path)
