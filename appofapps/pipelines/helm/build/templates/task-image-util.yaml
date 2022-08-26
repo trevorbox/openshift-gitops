@@ -1,0 +1,54 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: image-util
+spec:
+  workspaces:
+    - name: source
+  params:
+    - name: git-revision
+      description: the source code branch, must resemble release/MAJOR.MINOR.PATH
+    - name: repository
+      description: The image repository
+      type: string
+    - name: base-image-repository
+      type: string
+      description: The base image repository
+    - name: base-image-tag
+      type: string
+      description: The base image tag
+      default: latest
+    # - name: authfile
+    #   description: The image repository
+    #   type: string
+  results:
+    - name: next-prerelease
+      description: The next semver prerelease
+    - name: base-image-digest
+      description: The digest of the base image
+    - name: current-datetime-iso8601
+      description: The date and time on which the image was built, conforming to RFC 3339
+    - name: release
+      description: The semver release from the git branch name
+  steps:
+    - name: image-util
+      image: quay.io/trevorbox/image-util:latest
+      workingDir: /workspace/source
+      script: |
+        #!/usr/bin/env bash
+        set -xe
+
+        # parse the release semver from the git branch name
+        cd /workspace/source/
+        RELEASE=$(echo -n $(inputs.params.git-revision) | sed 's/release\///g')
+        echo -n ${RELEASE} > $(results.release.path)
+        
+        # call the util in this image to get the next semver
+        NEXT_PRERELEASE_SEMVER=$(/opt/app-root/next-prerelease-semver --repository=$(inputs.params.repository) --release=${RELEASE}) 
+        echo -n ${NEXT_PRERELEASE_SEMVER} > $(results.next-prerelease.path)
+
+        # image label values
+        BASE_IMAGE_DIGEST="$(skopeo inspect --format {{ printf "'{{ .Digest }}'" }} docker://$(inputs.params.base-image-repository):$(inputs.params.base-image-tag))"
+        echo -n ${BASE_IMAGE_DIGEST} > $(results.base-image-digest.path)
+        DATETIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+        echo -n ${DATETIME} > $(results.current-datetime-iso8601.path)

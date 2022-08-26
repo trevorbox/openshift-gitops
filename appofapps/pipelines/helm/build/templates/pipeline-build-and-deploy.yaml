@@ -16,16 +16,22 @@ spec:
     type: string
     description: revision to be used from repo of the code for deployment
     default: master
-  - name: RELEASE
-    type: string
-    description: release semver - MAJOR.MINOR.PATCH
-    default: "0.1.0"
   - name: IMAGE
     type: string
     description: image to be build from the code
   - name: CONTEXT
     type: string
     description: path to the source code
+  - name: GROUP_EMAIL
+    type: string
+    description: team group email to contact regarding the built image
+  - name: base-image-repository
+    type: string
+    description: The base image repository
+  - name: base-image-tag
+    type: string
+    description: The base image tag
+    default: latest
   # - name: srcImageURL
   #   type: string
   #   description: the image to copy
@@ -49,14 +55,21 @@ spec:
       value: "true"
     - name: revision
       value: $(params.git-revision)
-  - name: next-prerelease-semver
+  - name: image-util
+    workspaces:
+    - name: source
+      workspace: shared-workspace
     taskRef:
-      name: next-prerelease-semver
+      name: image-util
     params:
+    - name: git-revision
+      value: $(params.git-revision)
     - name: repository
       value: $(params.IMAGE)
-    - name: release
-      value: $(params.RELEASE)
+    - name: base-image-repository
+      value: $(params.base-image-repository)
+    - name: base-image-tag
+      value: $(params.base-image-tag)
     runAfter:
     - fetch-repository
   - name: build-image
@@ -65,36 +78,35 @@ spec:
       kind: ClusterTask
     params:
     - name: IMAGE
-      value: "$(params.IMAGE):v$(tasks.next-prerelease-semver.results.next-prerelease-semver)"
+      value: "$(params.IMAGE):v$(tasks.image-util.results.next-prerelease)"
     - name: CONTEXT
       value: $(params.CONTEXT)
     - name: TLSVERIFY
       value: "false"
-    # - name: BUILD_EXTRA_ARGS
-    #   value: --build-arg git_origin_url="$(params.git-url)" --build-arg git_revision="$(tasks.fetch-repository.results.commit)" --build-arg base_image_name="$(tasks.next-prerelease-semver.results.base-image-name)" --build-arg base_image_digest="$(tasks.next-prerelease-semver.results.base-image-digest)"
     - name: BUILD_EXTRA_ARGS
       value: >-
         --build-arg git_origin_url="$(params.git-url)"
         --build-arg git_revision="$(tasks.fetch-repository.results.commit)"
-        --build-arg base_image_name="$(tasks.next-prerelease-semver.results.base-image-name)"
-        --build-arg base_image_digest="$(tasks.next-prerelease-semver.results.base-image-digest)"
-        --build-arg src_version="$(params.RELEASE)"
-        --build-arg created="$(tasks.next-prerelease-semver.results.current-datetime-rfc3339)"
-        --build-arg author_emails=""
-        --build-arg build_host="$(context.pipelineRun.namespace)/$(context.pipeline.name)"
+        --build-arg base_image_repository="$(params.base-image-repository)"
+        --build-arg base_image_tag="$(params.base-image-tag)"
+        --build-arg base_image_digest="$(tasks.image-util.results.base-image-digest)"
+        --build-arg src_version="$(tasks.image-util.results.release)"
+        --build-arg created="$(tasks.image-util.results.current-datetime-iso8601)"
+        --build-arg author_emails="$(params.GROUP_EMAIL)"
+        --build-arg build_host="$(context.pipelineRun.namespace)/$(context.pipelineRun.name)"
         --build-arg build_id="$(context.pipelineRun.uid)"
     workspaces:
     - name: source
       workspace: shared-workspace
     runAfter:
-    - next-prerelease-semver
+    - image-util
   - name: push-image
     taskRef:
       name: skopeo-copy
       kind: ClusterTask
     params:
     - name: srcImageURL
-      value: "docker://$(params.IMAGE):v$(tasks.next-prerelease-semver.results.next-prerelease-semver)"
+      value: "docker://$(params.IMAGE):v$(tasks.image-util.results.next-prerelease)"
     - name: destImageURL
       value: "docker://$(params.IMAGE):latest"
     - name: srcTLSverify

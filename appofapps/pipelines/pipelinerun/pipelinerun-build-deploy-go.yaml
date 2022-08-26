@@ -13,13 +13,17 @@ spec:
     value: https://github.com/trevorbox/s2i.git
   - name: git-revision
     value: release/0.1.0
-  - name: RELEASE
-    value: "0.1.0"
   - name: IMAGE
     # value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
     value: quay.io/trevorbox/pipeline-test-go
   - name: CONTEXT
     value: go
+  - name: GROUP_EMAIL
+    value: myteam@example.com
+  - name: base-image-repository
+    value: registry.access.redhat.com/ubi8/ubi-micro
+  - name: base-image-tag
+    value: latest
   # - name: srcImageURL
   #   value: docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
   # - name: destImageURL
