@@ -24,15 +24,19 @@ spec:
       description: The name of the base image
     - name: base-image-digest
       description: The digest of the base image
+    - name: current-datetime-rfc3339
+      description: The date and time on which the image was built, conforming to RFC 3339
   steps:
     - name: next-prerelease-semver
       image: quay.io/trevorbox/next-prerelease-semver:latest
       script: |
         #!/usr/bin/env bash
         set -xe
-        NEXT_TAG=$(/opt/app-root/next-prerelease-semver --repository=$(inputs.params.repository) --release=$(inputs.params.release)) 
-        echo -n ${NEXT_TAG} > $(results.next-prerelease-semver.path)
-        # BASE_IMAGE_NAME=$(skopeo inspect --format "\{\{ .Name \}\}" docker://$(inputs.params.base-image))
-        # echo -n ${BASE_IMAGE_NAME} > $(results.base-image-name.path)
-        # BASE_IMAGE_DIGEST="$(skopeo inspect --format \"{{ .Digest }}\" docker://$(inputs.params.base-image))"
-        # echo -n ${BASE_IMAGE_DIGEST} > $(results.base-image-digest.path)
+        NEXT_PRERELEASE_SEMVER=$(/opt/app-root/next-prerelease-semver --repository=$(inputs.params.repository) --release=$(inputs.params.release)) 
+        echo -n ${NEXT_PRERELEASE_SEMVER} > $(results.next-prerelease-semver.path)
+        BASE_IMAGE_NAME=$(skopeo inspect --format {{ printf "'{{ .Name }}'" }} docker://$(inputs.params.base-image))
+        echo -n ${BASE_IMAGE_NAME} > $(results.base-image-name.path)
+        BASE_IMAGE_DIGEST="$(skopeo inspect --format {{ printf "'{{ .Digest }}'" }} docker://$(inputs.params.base-image))"
+        echo -n ${BASE_IMAGE_DIGEST} > $(results.base-image-digest.path)
+        DATETIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+        echo -n ${DATETIME} > $(results.current-datetime-rfc3339.path)

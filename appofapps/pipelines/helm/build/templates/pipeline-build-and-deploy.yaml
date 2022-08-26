@@ -70,12 +70,19 @@ spec:
       value: $(params.CONTEXT)
     - name: TLSVERIFY
       value: "false"
+    # - name: BUILD_EXTRA_ARGS
+    #   value: --build-arg git_origin_url="$(params.git-url)" --build-arg git_revision="$(tasks.fetch-repository.results.commit)" --build-arg base_image_name="$(tasks.next-prerelease-semver.results.base-image-name)" --build-arg base_image_digest="$(tasks.next-prerelease-semver.results.base-image-digest)"
     - name: BUILD_EXTRA_ARGS
-      value: |
-        --build-arg git_origin_url=$(params.git-url) 
-        --build-arg git_revision=$(tasks.fetch-repository.results.commit)
-        --build-arg base_image_name=$(tasks.next-prerelease-semver.results.base-image-name)
-        --build-arg base_image_digest=$(tasks.next-prerelease-semver.results.base-image-digest)
+      value: >-
+        --build-arg git_origin_url="$(params.git-url)"
+        --build-arg git_revision="$(tasks.fetch-repository.results.commit)"
+        --build-arg base_image_name="$(tasks.next-prerelease-semver.results.base-image-name)"
+        --build-arg base_image_digest="$(tasks.next-prerelease-semver.results.base-image-digest)"
+        --build-arg src_version="$(params.RELEASE)"
+        --build-arg created="$(tasks.next-prerelease-semver.results.current-datetime-rfc3339)"
+        --build-arg author_emails=""
+        --build-arg build_host="$(context.pipelineRun.namespace)/$(context.pipeline.name)"
+        --build-arg build_id="$(context.pipelineRun.uid)"
     workspaces:
     - name: source
       workspace: shared-workspace
