@@ -118,6 +118,39 @@ spec:
       workspace: shared-workspace
     runAfter:
     - build-image
+
+  - name: fetch-monorepo
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+      - name: url
+        value: https://github.com/trevorbox/openshift-gitops.git
+      - name: revision
+        value: "main"
+      - name: subdirectory
+        value: ""
+      - name: deleteExisting
+        value: "true"
+    runAfter:
+    - push-image
+  - name: yq-replace
+    taskRef:
+      name: yq
+    runAfter:
+      - fetch-monorepo
+    workspaces:
+      - name: source
+        workspace: shared-workspace
+    params:
+      - name: files
+        value:
+        - "./appofapps/deploy/helm/app/values-dev.yaml"
+      - name: expression
+        value: (.image.repository="$(params.IMAGE)"),(.image.tag="v$(tasks.image-util.results.next-prerelease))"
   # - name: apply-manifests
   #   taskRef:
   #     name: apply-manifests

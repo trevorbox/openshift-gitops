@@ -1,3 +1,4 @@
-annotations:
-  sidecar.istio.io/inject: "true"
-  valuesFileName: values-dev.yaml
+image:
+  repository: quay.io/trevorbox/pipeline-test-go
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
