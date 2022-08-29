@@ -10,7 +10,7 @@ spec:
   - name: deployment-name
     value: go
   - name: git-url
-    value: https://github.com/trevorbox/s2i.git
+    value: git@github.com:trevorbox/s2i.git
   - name: git-revision
     value: release/0.1.0
   - name: IMAGE
@@ -24,16 +24,35 @@ spec:
     value: registry.access.redhat.com/ubi8/ubi-micro
   - name: base-image-tag
     value: latest
+  - name: monorepo-git-url
+    value: git@github.com:trevorbox/openshift-gitops.git
+  - name: monorepo-git-revision
+    value: main
   # - name: srcImageURL
   #   value: docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
   # - name: destImageURL
   #   value: docker://quay.io/trevorbox/pipeline-test-go
   workspaces:
   - name: shared-workspace
-    volumeClaimTemplate:
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 500Mi
+    # volumeClaimTemplate:
+    #   spec:
+    #     accessModes:
+    #       - ReadWriteOnce
+    #     resources:
+    #       requests:
+    #         storage: 500Mi
+    persistentVolumeClaim:
+      claimName: source-pvc
+  - name: monorepo-workspace
+    # volumeClaimTemplate:
+    #   spec:
+    #     accessModes:
+    #       - ReadWriteOnce
+    #     resources:
+    #       requests:
+    #         storage: 500Mi
+    persistentVolumeClaim:
+      claimName: monorepo-pvc
+  - name: ssh-creds
+    secret:
+      secretName: my-ssh-credentials

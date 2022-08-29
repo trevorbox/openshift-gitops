@@ -62,6 +62,10 @@ export build_namespace=${org}-${context}-build
 ```
 
 ```sh
-helm upgrade -i go-build-and-deploy pipelines/helm/build -n ${build_namespace} --set-file quay.dockerconfigjson=trevorbox-deployer-auth.json --create-namespace
+helm upgrade -i go-build-and-deploy pipelines/helm/build -n ${build_namespace} \
+  --set-file quay.dockerconfigjson=trevorbox-deployer-auth.json \
+  --set-file github.ssh.id_rsa=${HOME}/.ssh/tkn/id_ed25519 \
+  --set-file github.ssh.known_hosts=${HOME}/.ssh/known_hosts \
+  --create-namespace
 oc apply -f pipelines/pipelinerun/pipelinerun-build-deploy-go.yaml -n ${build_namespace}
 ```

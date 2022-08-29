@@ -5,6 +5,8 @@ metadata:
 spec:
   workspaces:
   - name: shared-workspace
+  - name: monorepo-workspace
+  - name: ssh-creds
   params:
   - name: deployment-name
     type: string
@@ -32,12 +34,12 @@ spec:
     type: string
     description: The base image tag
     default: latest
-  # - name: srcImageURL
-  #   type: string
-  #   description: the image to copy
-  # - name: destImageURL
-  #   type: string
-  #   description: the destination for the image   
+  - name: monorepo-git-url
+    type: string
+    description: url of the git repo for the code of the monorepo
+  - name: monorepo-git-revision
+    type: string
+    description: revision to be used from repo of the code of the monorepo
   tasks:
   - name: fetch-repository
     taskRef:
@@ -46,6 +48,8 @@ spec:
     workspaces:
     - name: output
       workspace: shared-workspace
+    - name: ssh-directory
+      workspace: ssh-creds
     params:
     - name: url
       value: $(params.git-url)
@@ -125,12 +129,14 @@ spec:
       kind: ClusterTask
     workspaces:
     - name: output
-      workspace: shared-workspace
+      workspace: monorepo-workspace
+    - name: ssh-directory
+      workspace: ssh-creds
     params:
       - name: url
-        value: https://github.com/trevorbox/openshift-gitops.git
+        value: "$(params.monorepo-git-url)"
       - name: revision
-        value: "main"
+        value: "$(params.monorepo-git-revision)"
       - name: subdirectory
         value: ""
       - name: deleteExisting
@@ -144,13 +150,33 @@ spec:
       - fetch-monorepo
     workspaces:
       - name: source
-        workspace: shared-workspace
+        workspace: monorepo-workspace
     params:
       - name: files
         value:
         - "./appofapps/deploy/helm/app/values-dev.yaml"
       - name: expression
-        value: (.image.repository="$(params.IMAGE)"),(.image.tag="v$(tasks.image-util.results.next-prerelease))"
+        value: (.image.tag="v$(tasks.image-util.results.next-prerelease)"),(.image.repository="$(params.IMAGE)")
+  - name: update-monorepo
+    taskRef:
+      name: git-cli
+      kind: ClusterTask
+    workspaces:
+    - name: source
+      workspace: monorepo-workspace
+    - name: ssh-directory
+      workspace: ssh-creds
+    params:
+      - name: GIT_USER_NAME
+        value: trevorbox
+      - name: GIT_USER_EMAIL
+        value: trevorjbox@gmail.com
+      - name: GIT_SCRIPT
+        value: |
+          git commit -am "update-monorepo v$(tasks.image-util.results.next-prerelease)"
+          git push origin HEAD:"$(params.monorepo-git-revision)"
+    runAfter:
+      - yq-replace
   # - name: apply-manifests
   #   taskRef:
   #     name: apply-manifests
