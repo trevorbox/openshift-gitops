@@ -1,2 +1,6 @@
 quay:
   dockerconfigjson:
+github:
+  ssh:
+    is_rsa:
+    known_hosts:
