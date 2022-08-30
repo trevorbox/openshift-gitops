@@ -27,6 +27,12 @@ spec:
   - name: GROUP_EMAIL
     type: string
     description: team group email to contact regarding the built image
+  - name: builder-image-repository
+    type: string
+    description: The builder image repository
+  - name: builder-image-tag
+    type: string
+    description: The builder image tag
   - name: base-image-repository
     type: string
     description: The base image repository
@@ -70,6 +76,10 @@ spec:
       value: $(params.git-revision)
     - name: repository
       value: $(params.IMAGE)
+    - name: builder-image-repository
+      value: $(params.builder-image-repository)
+    - name: builder-image-tag
+      value: $(params.builder-image-tag)
     - name: base-image-repository
       value: $(params.base-image-repository)
     - name: base-image-tag
@@ -91,6 +101,9 @@ spec:
       value: >-
         --build-arg git_origin_url="$(params.git-url)"
         --build-arg git_revision="$(tasks.fetch-repository.results.commit)"
+        --build-arg builder_image_repository="$(params.builder-image-repository)"
+        --build-arg builder_image_tag="$(params.builder-image-tag)"
+        --build-arg builder_image_digest="$(tasks.image-util.results.builder-image-digest)"
         --build-arg base_image_repository="$(params.base-image-repository)"
         --build-arg base_image_tag="$(params.base-image-tag)"
         --build-arg base_image_digest="$(tasks.image-util.results.base-image-digest)"
@@ -175,6 +188,7 @@ spec:
         value: |
           git commit -am "update-monorepo v$(tasks.image-util.results.next-prerelease)"
           git push origin HEAD:"$(params.monorepo-git-revision)"
+          chmod -R g+w .git
     runAfter:
       - yq-replace
   # - name: apply-manifests

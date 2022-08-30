@@ -20,8 +20,12 @@ spec:
     value: go
   - name: GROUP_EMAIL
     value: myteam@example.com
+  - name: builder-image-repository
+    value: registry.access.redhat.com/ubi9/go-toolset
+  - name: builder-image-tag
+    value: latest
   - name: base-image-repository
-    value: registry.access.redhat.com/ubi8/ubi-micro
+    value: registry.access.redhat.com/ubi9/ubi-micro
   - name: base-image-tag
     value: latest
   - name: monorepo-git-url
