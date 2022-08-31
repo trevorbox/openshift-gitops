@@ -2,10 +2,11 @@
 
 This example uses helm charts.
 
-## assumptions
+## setup
 
-1. you have already created the argocd controller using the openshift gitops operator
-2. there is a Group created that your User belongs to and defined in the ArgoCD CR's spec.rbac section to allow your user admin access
+### deploy operator and controller
+
+> Note: there should be a Group created that your User belongs to and defined in the ArgoCD CR's spec.rbac section to allow your user admin access
 
 example ArgoCD CR spec.rbac snippet:
 
@@ -17,7 +18,14 @@ example ArgoCD CR spec.rbac snippet:
     scopes: '[groups]'
 ```
 
-## setup
+```sh
+helm upgrade -i openshift-gitops-operator setup/argocd/helm/openshift-gitops-operator/ -n openshift-operators
+# delete default controller in openshift-gitops namespace if not needed
+oc delete gitopsservice cluster -n openshift-gitops
+helm upgrade -i cicd setup/argocd/helm/argocd/ -n cicd --create-namespace
+```
+
+### create namespaces and setup vars
 
 ```sh
 export argo_namespace=cicd
