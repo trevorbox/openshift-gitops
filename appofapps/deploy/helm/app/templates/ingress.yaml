@@ -38,7 +38,7 @@ spec:
   {{- end }}
   rules:
     {{- range .Values.ingress.hosts }}
-    - host: {{ printf "app-%v.%v" $fullName $.Release.Namespace .host | quote }}
+    - host: {{ printf "app-%v.%v" $fullName .host | quote }}
       http:
         paths:
           {{- range .paths }}
