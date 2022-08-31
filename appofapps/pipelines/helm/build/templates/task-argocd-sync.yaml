@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: argocd-sync
+spec:
+  description: >-
+    This task syncs (deploys) an Argo CD application and waits for it to be healthy.
+    To do so, it requires the address of the Argo CD server and some form of
+    authentication either a username/password or an authentication token.
+    See https://github.com/argoproj/argo-cd/issues/5592 for why this custom task is needed.
+  params:
+    - name: application-name
+      description: name of the application to sync
+      type: string
+    - name: revision
+      description: the revision to sync to
+      default: HEAD
+      type: string
+    - name: flags
+      default: --
+      type: string
+    - name: argocd-version
+      default: v2.4.5
+      type: string
+  stepTemplate:
+    envFrom:
+      - configMapRef:
+          name: argocd-env-configmap  # used for server address
+      - secretRef:
+          name: argocd-env-secret  # used for authentication (username/password or auth token)
+  steps:
+    - name: login
+      image: quay.io/argoproj/argocd:$(params.argocd-version)
+      script: |
+        #!/usr/bin/env bash        
+        if [ -z "$ARGOCD_AUTH_TOKEN" ]; then
+          yes | argocd login "$ARGOCD_SERVER" --username="$ARGOCD_USERNAME" --password="$ARGOCD_PASSWORD";
+        fi
+        set -xe
+        argocd app get "$(params.application-name)" --refresh
+        argocd app wait "$(params.application-name)" --operation $(params.flags)
+        argocd app sync "$(params.application-name)" --revision "$(params.revision)" --async $(params.flags)
+        argocd app wait "$(params.application-name)" --health --sync $(params.flags)

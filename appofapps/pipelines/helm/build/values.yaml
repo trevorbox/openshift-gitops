@@ -4,3 +4,8 @@ github:
   ssh:
     is_rsa:
     known_hosts:
+argocd:
+  server: argocd-server.cicd.svc.cluster.local
+  username: admin
+  password: 
+  authToken: 

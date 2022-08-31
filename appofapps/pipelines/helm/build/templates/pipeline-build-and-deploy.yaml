@@ -191,6 +191,24 @@ spec:
           chmod -R g+w .git
     runAfter:
       - yq-replace
+
+  - name: sync-application
+    taskRef:
+      # name: argocd-task-sync-and-wait
+      # kind: ClusterTask
+      name: argocd-sync
+    params:
+      - name: application-name
+        value: hr-echo-dev
+      - name: revision
+        value: "$(params.monorepo-git-revision)"
+      - name: flags
+        value: --insecure --timeout=240
+      - name: argocd-version
+        value: v2.4.5
+    runAfter:
+      - update-monorepo
+
   # - name: apply-manifests
   #   taskRef:
   #     name: apply-manifests
