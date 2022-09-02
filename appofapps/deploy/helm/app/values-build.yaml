@@ -1,4 +1,4 @@
 image:
   repository: quay.io/trevorbox/pipeline-test-go
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "v0.1.0-91"
