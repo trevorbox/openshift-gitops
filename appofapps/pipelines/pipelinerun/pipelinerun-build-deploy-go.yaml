@@ -14,8 +14,8 @@ spec:
   - name: git-revision
     value: release/0.1.0
   - name: IMAGE
-    # value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
     value: quay.io/trevorbox/pipeline-test-go
+    # value: docker.io/trevorbox/go-app
   - name: CONTEXT
     value: go
   - name: GROUP_EMAIL
@@ -32,29 +32,19 @@ spec:
     value: git@github.com:trevorbox/openshift-gitops.git
   - name: monorepo-git-revision
     value: main
-  # - name: srcImageURL
-  #   value: docker://image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
-  # - name: destImageURL
-  #   value: docker://quay.io/trevorbox/pipeline-test-go
+  - name: files
+    value:
+      - "./appofapps/deploy/helm/app/values-build.yaml"
+      - "./appofapps/deploy/helm/app/values-dev.yaml"
+  - name: application-names
+    value:
+      - "hr-echo-dev"
+      - "hr-echo-build"
   workspaces:
   - name: shared-workspace
-    # volumeClaimTemplate:
-    #   spec:
-    #     accessModes:
-    #       - ReadWriteOnce
-    #     resources:
-    #       requests:
-    #         storage: 500Mi
     persistentVolumeClaim:
       claimName: source-pvc
   - name: monorepo-workspace
-    # volumeClaimTemplate:
-    #   spec:
-    #     accessModes:
-    #       - ReadWriteOnce
-    #     resources:
-    #       requests:
-    #         storage: 500Mi
     persistentVolumeClaim:
       claimName: monorepo-pvc
   - name: ssh-creds

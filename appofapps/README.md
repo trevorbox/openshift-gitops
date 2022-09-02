@@ -6,10 +6,12 @@ This example uses helm charts.
 
 ### deploy operators
 
-> TODO add openshift-pipelines operator installation chart
+```sh
+helm upgrade -i openshift-pipelines-operator setup/helm/openshift-pipelines-operator/ -n openshift-operators
+```
 
 ```sh
-helm upgrade -i openshift-gitops-operator setup/argocd/helm/openshift-gitops-operator/ -n openshift-operators
+helm upgrade -i openshift-gitops-operator setup/helm/openshift-gitops-operator/ -n openshift-operators
 # delete default controller in openshift-gitops namespace if not needed
 oc delete gitopsservice cluster -n openshift-gitops
 ```
@@ -40,7 +42,7 @@ example ArgoCD CR spec.rbac snippet:
 ### deploy argocd
 
 ```sh
-helm upgrade -i cicd setup/argocd/helm/argocd/ -n ${argo_namespace} --create-namespace
+helm upgrade -i cicd setup/helm/argocd/ -n ${argo_namespace} --create-namespace
 ```
 
 ## deploy
@@ -63,13 +65,6 @@ helm upgrade -i rootapp argocd/helm/rootapp/ -n ${argo_namespace} \
   -f argocd/helm/rootapp/values-cluster-prod.yaml
 ```
 
-## cleanup
-
-```sh
-helm delete rootapp -n ${argo_namespace}
-for i in "${envs[@]}"; do ns=${org}-${context}-${i} && oc delete project ${ns}; done
-```
-
 ## build pipeline
 
 ```sh
@@ -78,7 +73,7 @@ export build_namespace=${org}-${context}-build
 
 ```sh
 helm upgrade -i go-build-and-deploy pipelines/helm/build -n ${build_namespace} \
-  --set-file quay.dockerconfigjson=trevorbox-deployer-auth.json \
+  --set-file quay.dockerconfigjson=${XDG_RUNTIME_DIR}/containers/auth.json \
   --set-file github.ssh.id_rsa=${HOME}/.ssh/tkn/id_ed25519 \
   --set-file github.ssh.known_hosts=${HOME}/.ssh/known_hosts \
   --set argocd.server=argocd-server.${argo_namespace}.svc.cluster.local \
@@ -86,4 +81,11 @@ helm upgrade -i go-build-and-deploy pipelines/helm/build -n ${build_namespace} \
   --set argocd.password=$(oc get secret argocd-cluster -n ${argo_namespace} -o jsonpath={.data.admin\\.password} | base64 -d) \
   --create-namespace
 oc apply -f pipelines/pipelinerun/pipelinerun-build-deploy-go.yaml -n ${build_namespace}
+```
+
+## cleanup
+
+```sh
+helm delete rootapp -n ${argo_namespace}
+for i in "${envs[@]}"; do ns=${org}-${context}-${i} && oc delete project ${ns}; done
 ```

@@ -29,7 +29,6 @@ spec:
       - name: git-revision
         value: $(tt.params.git-revision)
       - name: IMAGE
-        # value: image-registry.openshift-image-registry.svc:5000/$(context.pipelineRun.namespace)/go
         value: quay.io/trevorbox/pipeline-test-go
       - name: CONTEXT
         value: go

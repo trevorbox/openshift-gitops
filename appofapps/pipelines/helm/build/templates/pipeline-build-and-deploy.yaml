@@ -46,6 +46,12 @@ spec:
   - name: monorepo-git-revision
     type: string
     description: revision to be used from repo of the code of the monorepo
+  - name: files
+    type: array
+    description: A list of files to update using yq in the monorepo
+  - name: application-names
+    type: array
+    description: A list of applications for argocd to sync 
   tasks:
   - name: fetch-repository
     taskRef:
@@ -135,7 +141,6 @@ spec:
       workspace: shared-workspace
     runAfter:
     - build-image
-
   - name: fetch-monorepo
     taskRef:
       name: git-clone
@@ -166,8 +171,7 @@ spec:
         workspace: monorepo-workspace
     params:
       - name: files
-        value:
-        - "./appofapps/deploy/helm/app/values-dev.yaml"
+        value: ["$(params.files[*])"]
       - name: expression
         value: (.image.tag="v$(tasks.image-util.results.next-prerelease)"),(.image.repository="$(params.IMAGE)")
   - name: update-monorepo
@@ -191,39 +195,15 @@ spec:
           chmod -R g+w .git
     runAfter:
       - yq-replace
-
   - name: sync-application
     taskRef:
-      # name: argocd-task-sync-and-wait
-      # kind: ClusterTask
       name: argocd-sync
     params:
-      - name: application-name
-        value: hr-echo-dev
+      - name: application-names
+        value: ["$(params.application-names[*])"]
       - name: revision
         value: "$(params.monorepo-git-revision)"
-      - name: flags
-        value: --insecure --timeout=240
       - name: argocd-version
         value: v2.4.5
     runAfter:
       - update-monorepo
-
-  # - name: apply-manifests
-  #   taskRef:
-  #     name: apply-manifests
-  #   workspaces:
-  #   - name: source
-  #     workspace: shared-workspace
-  #   runAfter:
-  #   - build-image
-  # - name: update-deployment
-  #   taskRef:
-  #     name: update-deployment
-  #   params:
-  #   - name: deployment
-  #     value: $(params.deployment-name)
-  #   - name: IMAGE
-  #     value: $(params.IMAGE)
-  #   runAfter:
-  #   - apply-manifests

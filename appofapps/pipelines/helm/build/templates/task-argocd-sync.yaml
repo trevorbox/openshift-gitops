@@ -9,15 +9,12 @@ spec:
     authentication either a username/password or an authentication token.
     See https://github.com/argoproj/argo-cd/issues/5592 for why this custom task is needed.
   params:
-    - name: application-name
-      description: name of the application to sync
-      type: string
+    - name: application-names
+      description: A list of applications for argocd to sync
+      type: array
     - name: revision
       description: the revision to sync to
       default: HEAD
-      type: string
-    - name: flags
-      default: --
       type: string
     - name: argocd-version
       default: v2.4.5
@@ -29,15 +26,20 @@ spec:
       - secretRef:
           name: argocd-env-secret  # used for authentication (username/password or auth token)
   steps:
-    - name: login
+    - name: sync-applications
       image: quay.io/argoproj/argocd:$(params.argocd-version)
+      args:
+        - '$(params.application-names[*])'
       script: |
         #!/usr/bin/env bash        
         if [ -z "$ARGOCD_AUTH_TOKEN" ]; then
           yes | argocd login "$ARGOCD_SERVER" --username="$ARGOCD_USERNAME" --password="$ARGOCD_PASSWORD";
         fi
         set -xe
-        argocd app get "$(params.application-name)" --refresh
-        argocd app wait "$(params.application-name)" --operation $(params.flags)
-        argocd app sync "$(params.application-name)" --revision "$(params.revision)" --async $(params.flags)
-        argocd app wait "$(params.application-name)" --health --sync $(params.flags)
+        for app in "$@"
+        do
+          argocd app get "$app" --refresh --insecure
+          argocd app wait "$app" --operation --insecure --timeout=240
+          argocd app sync "$app" --revision "$(params.revision)" --async --insecure --timeout=240
+          argocd app wait "$app" --health --sync --insecure --timeout=240
+        done
