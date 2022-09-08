@@ -1,0 +1,70 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: build-deploy-go-pipelinerun
+spec:
+  runPolicy: Serial
+  serviceAccount: pipeline
+  source:
+    binary: {}
+    type: Binary
+  strategy:
+    customStrategy:
+      env:
+      - name: NAME_PREFIX
+        value: build-deploy-go
+      - name: GIT_URL
+        value: git@github.com:trevorbox/s2i.git
+      - name: GIT_REVISION
+        value: release/0.1.0
+      - name: IMAGE
+        value: quay.io/trevorbox/pipeline-test-go
+      - name: CONTEXT
+        value: go
+      - name: GROUP_EMAIL
+        value: myteam@example.com
+      - name: BUILDER_IMAGE_REPOSITORY
+        value: registry.access.redhat.com/ubi9/go-toolset
+      - name: BUILDER_IMAGE_TAG
+        value: latest
+      - name: BASE_IMAGE_REPOSITORY
+        value: registry.access.redhat.com/ubi9/ubi-micro
+      - name: BASE_IMAGE_TAG
+        value: latest
+      - name: MONOREPO_GIT_URL
+        value: git@github.com:trevorbox/openshift-gitops.git
+      - name: MONOREPO_GIT_REVISION
+        value: main
+      # - name: FILES
+      #   value:
+      #     - "./appofapps/deploy/helm/app/values-build.yaml"
+      #     - "./appofapps/deploy/helm/app/values-dev.yaml"
+      # - name: APPLICATION_NAMES
+      #   value:
+      #     - "hr-echo-dev"
+      #     - "hr-echo-build"
+      - name: SHARED_WORKSPACE_PVC_NAME
+        value: source-pvc
+      - name: MONOREPO_WORKSPACE_PVC_NAME
+        value: monorepo-pvc
+      - name: SSH_CREDENTIALS_SECRET_NAME
+        value: my-ssh-credentials
+      from:
+        kind: "DockerImage"
+        name: "quay.io/trevorbox/base-image-trigger:latest"
+    type: Custom
+  triggers:
+  - imageChange:
+      from:
+        kind: ImageStreamTag
+        name: ubi9-micro:latest
+    type: ImageChange
+  - imageChange:
+      from:
+        kind: ImageStreamTag
+        name: ubi9-go-toolset:latest
+    type: ImageChange
+  - generic:
+      secretReference:
+        name: webhook-token
+    type: Generic

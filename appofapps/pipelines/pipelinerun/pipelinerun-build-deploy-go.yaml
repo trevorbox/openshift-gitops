@@ -7,8 +7,6 @@ spec:
     name: build-and-deploy
   serviceAccountName: skopeo
   params:
-  - name: deployment-name
-    value: go
   - name: git-url
     value: git@github.com:trevorbox/s2i.git
   - name: git-revision

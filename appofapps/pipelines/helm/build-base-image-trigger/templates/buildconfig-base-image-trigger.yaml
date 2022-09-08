@@ -1,0 +1,44 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: base-image-trigger
+  labels:
+    app: base-image-trigger
+spec:
+  output:
+    to:
+      kind: DockerImage
+      name: "quay.io/trevorbox/base-image-trigger:latest"
+    pushSecret:
+      name: quay-push-creds
+    imageLabels:
+    - name: org.opencontainers.image.title
+      value: base-image-trigger
+    - name: org.opencontainers.image.description
+      value: "An image to create a new PipelineRun when latest builder or base images are updated"
+    - name: org.opencontainers.image.source
+      value: "https://github.com/trevorbox/openshift-gitops.git"
+    - name: org.opencontainers.image.revision
+      value: "main"
+    - name: org.opencontainers.image.authors
+      value: myteam@example.com
+  resources: 
+    requests:
+      memory: 1Gi
+      cpu: 300m
+    limits:
+      memory: 2Gi
+  successfulBuildsHistoryLimit: 5
+  failedBuildsHistoryLimit: 5
+  strategy:
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  postCommit: {}
+  source:
+    type: Git
+    git:
+      uri: 'https://github.com/trevorbox/openshift-gitops.git'
+    contextDir: appofapps/pipelines/images/base-image-trigger
+  runPolicy: Serial
+  triggers:
+    - type: ConfigChange

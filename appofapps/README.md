@@ -83,6 +83,26 @@ helm upgrade -i go-build-and-deploy pipelines/helm/build -n ${build_namespace} \
 oc apply -f pipelines/pipelinerun/pipelinerun-build-deploy-go.yaml -n ${build_namespace}
 ```
 
+## build from base image change
+
+### build the trigger pipelinerun image
+
+```sh
+helm upgrade -i build-base-image-trigger pipelines/helm/build-base-image-trigger -n ${build_namespace}
+```
+
+### deploy the trigger
+
+> Note: The BuildConfig is configured to trigger whenever the builder or base ImageStreamTags import new latest images (scheduled every 15 minutes by default).
+
+```sh
+helm upgrade -i base-image-trigger pipelines/helm/base-image-trigger -n ${build_namespace}
+```
+
+```sh
+helm delete base-image-trigger -n ${build_namespace}
+```
+
 ## cleanup
 
 ```sh
